@@ -1,0 +1,115 @@
+run	check	result	detail
+1	version	PASS	7.4.12
+1	startup_ready	PASS	PONG
+1	runs_as_uid_999	PASS	uid=999
+1	set_get	PASS	OK hello
+1	incr	PASS	n=3
+1	list	PASS	a b c 
+1	hash	PASS	f2=v2
+1	sorted_set	PASS	
+1	expire_ttl	PASS	ttl=100
+1	update_key	PASS	updated
+1	exists	PASS	exists=1
+1	append	PASS	updated world
+1	decr	PASS	counter=9
+1	del	PASS	exists=0
+1	sets	PASS	scard=3
+1	expired_key_nil	PASS	after 300ms
+1	dbsize	PASS	dbsize=8 (k1 n l h z e counter s)
+1	lua_eval	PASS	
+1	jemalloc	PASS	jemalloc-5.3.0
+1	dns_network_client	PASS	PONG
+1	save_rdb	PASS	OK
+1	final_ping	PASS	PONG
+1	graceful_stop	PASS	638ms exit=0
+1	shutdown_log	PASS	ready to exit
+1	no_errors_in_log	PASS	
+1	persistence_restart	PASS	k1=hello
+1	args_and_aof	PASS	maxmemory=10485760 appendonly=yes
+1	tls_ping	PASS	PONG
+1	tls_set_get	PASS	tls-value
+1	tls_plaintext_port_disabled	PASS	Could not connect to Redis at 127.0.0.1:6379: Connection ref
+1	tls_plaintext_client_rejected	PASS	Error: Connection reset by peer
+1	tls_no_client_cert_rejected	PASS	Error: Server closed the connection
+1	tls_rogue_client_cert_rejected	PASS	Error: Server closed the connection
+1	tls_untrusted_server_rejected	PASS	Could not connect to Redis at 127.0.0.1:6380: SSL_connect fa
+1	tls13_handshake	PASS	TLSv1.3
+1	tls12_handshake	PASS	TLSv1.2
+1	tls11_rejected	PASS	refused
+1	tls_final_ping	PASS	PONG
+2	version	PASS	7.4.12
+2	startup_ready	PASS	PONG
+2	runs_as_uid_999	PASS	uid=999
+2	set_get	PASS	OK hello
+2	incr	PASS	n=3
+2	list	PASS	a b c 
+2	hash	PASS	f2=v2
+2	sorted_set	PASS	
+2	expire_ttl	PASS	ttl=100
+2	update_key	PASS	updated
+2	exists	PASS	exists=1
+2	append	PASS	updated world
+2	decr	PASS	counter=9
+2	del	PASS	exists=0
+2	sets	PASS	scard=3
+2	expired_key_nil	PASS	after 300ms
+2	dbsize	PASS	dbsize=8 (k1 n l h z e counter s)
+2	lua_eval	PASS	
+2	jemalloc	PASS	jemalloc-5.3.0
+2	dns_network_client	PASS	PONG
+2	save_rdb	PASS	OK
+2	final_ping	PASS	PONG
+2	graceful_stop	PASS	697ms exit=0
+2	shutdown_log	PASS	ready to exit
+2	no_errors_in_log	PASS	
+2	persistence_restart	PASS	k1=hello
+2	args_and_aof	PASS	maxmemory=10485760 appendonly=yes
+2	tls_ping	PASS	PONG
+2	tls_set_get	PASS	tls-value
+2	tls_plaintext_port_disabled	PASS	Could not connect to Redis at 127.0.0.1:6379: Connection ref
+2	tls_plaintext_client_rejected	PASS	Error: Connection reset by peer
+2	tls_no_client_cert_rejected	PASS	Error: Server closed the connection
+2	tls_rogue_client_cert_rejected	PASS	Error: Server closed the connection
+2	tls_untrusted_server_rejected	PASS	Could not connect to Redis at 127.0.0.1:6380: SSL_connect fa
+2	tls13_handshake	PASS	TLSv1.3
+2	tls12_handshake	PASS	TLSv1.2
+2	tls11_rejected	PASS	refused
+2	tls_final_ping	PASS	PONG
+3	version	PASS	7.4.12
+3	startup_ready	PASS	PONG
+3	runs_as_uid_999	PASS	uid=999
+3	set_get	PASS	OK hello
+3	incr	PASS	n=3
+3	list	PASS	a b c 
+3	hash	PASS	f2=v2
+3	sorted_set	PASS	
+3	expire_ttl	PASS	ttl=100
+3	update_key	PASS	updated
+3	exists	PASS	exists=1
+3	append	PASS	updated world
+3	decr	PASS	counter=9
+3	del	PASS	exists=0
+3	sets	PASS	scard=3
+3	expired_key_nil	PASS	after 300ms
+3	dbsize	PASS	dbsize=8 (k1 n l h z e counter s)
+3	lua_eval	PASS	
+3	jemalloc	PASS	jemalloc-5.3.0
+3	dns_network_client	PASS	PONG
+3	save_rdb	PASS	OK
+3	final_ping	PASS	PONG
+3	graceful_stop	PASS	754ms exit=0
+3	shutdown_log	PASS	ready to exit
+3	no_errors_in_log	PASS	
+3	persistence_restart	PASS	k1=hello
+3	args_and_aof	PASS	maxmemory=10485760 appendonly=yes
+3	tls_ping	PASS	PONG
+3	tls_set_get	PASS	tls-value
+3	tls_plaintext_port_disabled	PASS	Could not connect to Redis at 127.0.0.1:6379: Connection ref
+3	tls_plaintext_client_rejected	PASS	Error: Connection reset by peer
+3	tls_no_client_cert_rejected	PASS	Error: Server closed the connection
+3	tls_rogue_client_cert_rejected	PASS	Error: Server closed the connection
+3	tls_untrusted_server_rejected	PASS	Could not connect to Redis at 127.0.0.1:6380: SSL_connect fa
+3	tls13_handshake	PASS	TLSv1.3
+3	tls12_handshake	PASS	TLSv1.2
+3	tls11_rejected	PASS	refused
+3	tls_final_ping	PASS	PONG

@@ -1,0 +1,26 @@
+Image:   redis:7.4.12-purge
+Distro:  debian 12.15
+Size:    45.3 MB
+Matches: 39   Unique CVEs: 39
+
+Unique CVEs by severity:
+  Critical       1
+  High           7
+  Medium        14
+  Low            7
+  Negligible    10
+  Unknown        0
+
+Fix status (unique CVEs, best state across matches):
+  state        Crit  High  Medi   Low  Negl  Unkn  total
+  fixed           0     0     0     0     0     0      0
+  not-fixed       0     4     6     4    10     0     24
+  wont-fix        1     3     8     1     0     0     13
+  unknown         0     0     0     2     0     0      2
+
+Packages by unique CVE count:
+  package                           version                   type     CVEs fixed  worst     fix-in
+  libc6                             2.36-9+deb12u14           deb        30     0  Critical  
+  libssl3                           3.0.22-1~deb12u2          deb         5     0  High      
+  redis                             7.4.12                    binary      2     0  Low       
+  dash                              0.5.12-2                  deb         2     0  Negligible

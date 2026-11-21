@@ -1,0 +1,31 @@
+# Redis 7.4.12 rebuilt from the official source on Wolfi (fresh glibc + OpenSSL), TLS enabled like the official image.
+ARG BASE=cgr.dev/chainguard/wolfi-base@sha256:be019c1c74fe69204a42c4e10bc4d886a49bf5403ffa74374ef7baa408fc9a26
+
+FROM ${BASE} AS build
+RUN apk add --no-cache build-base linux-headers openssl-3.6-dev
+ADD --checksum=sha256:324ab63d55c607639b419f547b213c62ae39ff50e09870e450a11c272567b84f \
+    https://github.com/redis/redis/archive/refs/tags/7.4.12.tar.gz /redis.tar.gz
+WORKDIR /src
+# Same patch as the official image: protected-mode off, so other containers can connect.
+RUN tar -xzf /redis.tar.gz --strip-components=1 \
+ && sed -i 's/\("protected-mode",.*, *\)1\( *,\)/\10\2/' src/config.c \
+ && grep -q '"protected-mode",.*, *0 *,' src/config.c \
+ && make -j"$(nproc)" BUILD_TLS=yes \
+ && make PREFIX=/out install \
+ && rm /out/bin/redis-benchmark
+
+FROM ${BASE}
+RUN apk upgrade --no-cache \
+ && apk add --no-cache so:libssl.so.3 so:libcrypto.so.3 tzdata \
+ && addgroup -S -g 999 redis \
+ && adduser -S -D -H -u 999 -G redis -s /sbin/nologin redis \
+ && install -d -o redis -g redis /data
+COPY --from=build /out/bin/ /usr/local/bin/
+COPY --chmod=755 files/docker-entrypoint.sh /usr/local/bin/
+ENV REDIS_VERSION=7.4.12
+WORKDIR /data
+VOLUME /data
+USER redis
+EXPOSE 6379
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["redis-server"]

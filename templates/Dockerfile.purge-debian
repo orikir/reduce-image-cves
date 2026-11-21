@@ -1,0 +1,39 @@
+# Approach "remove what the app does not use" for Debian/Ubuntu-based images.
+# Keeps the original app binaries, purges every package not in KEEP, flattens into scratch.
+# Fill in: ORIGINAL (pin by digest), KEEP (from summaries/runtime-deps.txt), the final metadata block
+# (copy ENV/WORKDIR/VOLUME/EXPOSE/ENTRYPOINT/CMD from summaries/image-info.txt).
+#
+# Why it is written this way (each line fixes a real failure):
+#  * removal scripts (prerm/postrm) of dropped packages call perl/coreutils/PAM tools that are removed in the
+#    same run; they fail and leave half-removed packages that the scanner still reports -> delete them first
+#  * libcrypt1/libgcc-s1 are "protected" -> --force-remove-protected
+#  * chmod/rm/etc. come from coreutils -> do all file work BEFORE the purge
+#  * dpkg removes files AND status entries, so the scanner sees exactly what is left (nothing hidden)
+#  * an entrypoint that does `chown` + `setpriv`/`gosu` needs util-linux/coreutils: replace it with a minimal
+#    one and set USER instead (document this behaviour change in the report)
+#  * glibc loads libgcc_s on demand for pthread_cancel: keep libgcc-s1 if the app cancels threads in normal use
+
+ARG ORIGINAL=<image>@sha256:<digest>
+FROM ${ORIGINAL} AS strip
+# COPY files/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh   # minimal entrypoint, if needed
+RUN set -eux; \
+    keep=' base-files base-passwd libc6 dash tzdata ca-certificates '; \
+    remove=''; \
+    for p in $(dpkg-query -W -f '${Package}\n'); do \
+        case "$keep" in *" $p "*) ;; *) remove="$remove $p" ;; esac; \
+    done; \
+    rm -rf /var/lib/apt/lists/* /var/cache/* /var/log/* /usr/share/doc /usr/share/man /usr/share/info; \
+    for p in $remove; do rm -f /var/lib/dpkg/info/$p.prerm /var/lib/dpkg/info/$p.postrm \
+        /var/lib/dpkg/info/$p:*.prerm /var/lib/dpkg/info/$p:*.postrm; done; \
+    dpkg --purge --force-remove-essential --force-remove-protected --force-depends --no-triggers $remove
+
+FROM scratch
+COPY --from=strip / /
+# ---- copy the original image's runtime metadata here ----
+# ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# WORKDIR /data
+# VOLUME /data
+# USER <non-root user from the original image>
+# EXPOSE <port>
+# ENTRYPOINT ["..."]
+# CMD ["..."]

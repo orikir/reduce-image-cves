@@ -1,0 +1,56 @@
+Before: redis@sha256:2e3eb11462c4e3759e6972678dd051d150ff54b1e60714b3c33b701260172a90 (debian 12.15)
+After:  redis:7.4.12-purge (debian 12.15)
+
+  severity     before   after   delta
+  Critical          1       1      +0
+  High             21       7     -14
+  Medium           42      14     -28
+  Low              13       7      -6
+  Negligible       36      10     -26
+  Unknown           0       0      +0
+  TOTAL           113      39     -74
+
+  size MB       113.0    45.3    -60%
+
+Removed: 74   Remaining: 39   NEW: 0
+
+Remaining CVEs:
+  CVE-2026-5450       Critical   wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-107493     High       not-fixed libssl3@3.0.22-1~deb12u2
+  CVE-2026-107496     High       not-fixed libssl3@3.0.22-1~deb12u2
+  CVE-2026-19499      High       wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-5435       High       wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-5928       High       wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-84243      High       not-fixed libc6@2.36-9+deb12u14
+  CVE-2026-84786      High       not-fixed libssl3@3.0.22-1~deb12u2
+  CVE-2026-115819     Medium     not-fixed libc6@2.36-9+deb12u14
+  CVE-2026-121757     Medium     not-fixed libc6@2.36-9+deb12u14
+  CVE-2026-121758     Medium     not-fixed libc6@2.36-9+deb12u14
+  CVE-2026-124024     Medium     not-fixed libc6@2.36-9+deb12u14
+  CVE-2026-18374      Medium     wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-19542      Medium     wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-6238       Medium     wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-6791       Medium     wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-77117      Medium     wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-80489      Medium     wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-8674       Medium     wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-86805      Medium     not-fixed libc6@2.36-9+deb12u14
+  CVE-2026-89092      Medium     wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-95690      Medium     not-fixed libssl3@3.0.22-1~deb12u2
+  CVE-2025-46686      Low        unknown   redis@7.4.12
+  CVE-2025-49112      Low        unknown   redis@7.4.12
+  CVE-2026-100290     Low        not-fixed libc6@2.36-9+deb12u14
+  CVE-2026-126765     Low        not-fixed libc6@2.36-9+deb12u14
+  CVE-2026-6368       Low        wont-fix  libc6@2.36-9+deb12u14
+  CVE-2026-95818      Low        not-fixed libc6@2.36-9+deb12u14
+  CVE-2026-97399      Low        not-fixed libc6@2.36-9+deb12u14
+  CVE-2010-4756       Negligible not-fixed libc6@2.36-9+deb12u14
+  CVE-2018-20796      Negligible not-fixed libc6@2.36-9+deb12u14
+  CVE-2019-1010022    Negligible not-fixed libc6@2.36-9+deb12u14
+  CVE-2019-1010023    Negligible not-fixed libc6@2.36-9+deb12u14
+  CVE-2019-1010024    Negligible not-fixed libc6@2.36-9+deb12u14
+  CVE-2019-1010025    Negligible not-fixed libc6@2.36-9+deb12u14
+  CVE-2019-9192       Negligible not-fixed libc6@2.36-9+deb12u14
+  CVE-2025-27587      Negligible not-fixed libssl3@3.0.22-1~deb12u2
+  CVE-2026-102473     Negligible not-fixed dash@0.5.12-2
+  CVE-2026-102474     Negligible not-fixed dash@0.5.12-2

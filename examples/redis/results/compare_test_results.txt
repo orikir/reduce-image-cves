@@ -1,0 +1,54 @@
+ORIGINAL | PING | PASS
+ORIGINAL | SET / GET | PASS
+ORIGINAL | Update key | PASS
+ORIGINAL | EXISTS | PASS
+ORIGINAL | APPEND | PASS
+ORIGINAL | INCR | PASS
+ORIGINAL | DECR | PASS
+ORIGINAL | DEL | PASS
+ORIGINAL | Lists | PASS
+ORIGINAL | Sets | PASS
+ORIGINAL | Hashes | PASS
+ORIGINAL | TTL | PASS
+ORIGINAL | Expired key returns nil | PASS
+ORIGINAL | RDB SAVE | PASS
+ORIGINAL | DBSIZE | PASS
+ORIGINAL | Final PING | PASS
+ORIGINAL | TLS PING | PASS
+ORIGINAL | TLS SET / GET | PASS
+ORIGINAL | Plain-text port disabled | PASS
+ORIGINAL | Plain-text client on TLS port rejected | PASS
+ORIGINAL | Client without certificate rejected | PASS
+ORIGINAL | Client certificate from untrusted CA rejected | PASS
+ORIGINAL | Untrusted server certificate rejected by client | PASS
+ORIGINAL | TLS 1.3 handshake | PASS
+ORIGINAL | TLS 1.2 handshake | PASS
+ORIGINAL | TLS 1.1 rejected | PASS
+ORIGINAL | Final TLS PING | PASS
+SECURED | PING | PASS
+SECURED | SET / GET | PASS
+SECURED | Update key | PASS
+SECURED | EXISTS | PASS
+SECURED | APPEND | PASS
+SECURED | INCR | PASS
+SECURED | DECR | PASS
+SECURED | DEL | PASS
+SECURED | Lists | PASS
+SECURED | Sets | PASS
+SECURED | Hashes | PASS
+SECURED | TTL | PASS
+SECURED | Expired key returns nil | PASS
+SECURED | RDB SAVE | PASS
+SECURED | DBSIZE | PASS
+SECURED | Final PING | PASS
+SECURED | TLS PING | PASS
+SECURED | TLS SET / GET | PASS
+SECURED | Plain-text port disabled | PASS
+SECURED | Plain-text client on TLS port rejected | PASS
+SECURED | Client without certificate rejected | PASS
+SECURED | Client certificate from untrusted CA rejected | PASS
+SECURED | Untrusted server certificate rejected by client | PASS
+SECURED | TLS 1.3 handshake | PASS
+SECURED | TLS 1.2 handshake | PASS
+SECURED | TLS 1.1 rejected | PASS
+SECURED | Final TLS PING | PASS

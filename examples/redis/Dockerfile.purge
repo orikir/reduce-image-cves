@@ -1,0 +1,31 @@
+# Approach 1: remove every package redis does not need, then flatten.
+# Same Debian 12 redis 7.4.12 binaries as the original; only the OS around them shrinks.
+FROM redis:7-bookworm@sha256:2e3eb11462c4e3759e6972678dd051d150ff54b1e60714b3c33b701260172a90 AS strip
+COPY files/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+# Runtime needs: libc6 (libc, libm, ld.so), libssl3 (TLS), dash (/bin/sh for the entrypoint),
+# tzdata, base-files/base-passwd (/etc layout, passwd/group with the redis user).
+RUN set -eux; \
+    keep=' base-files base-passwd libc6 libssl3 dash tzdata '; \
+    remove=''; \
+    for p in $(dpkg-query -W -f '${Package}\n'); do \
+        case "$keep" in *" $p "*) ;; *) remove="$remove $p" ;; esac; \
+    done; \
+    chmod 0755 /usr/local/bin/docker-entrypoint.sh; \
+    rm -f /usr/local/bin/redis-benchmark; \
+    rm -rf /var/lib/apt/lists/* /var/cache/* /var/log/* /usr/share/doc /usr/share/man /usr/share/info; \
+    # Removal scripts of dropped packages would call tools that are already gone (perl, coreutils...).
+    # They only do bookkeeping (alternatives, debconf), so delete them and let dpkg remove files + status.
+    for p in $remove; do rm -f /var/lib/dpkg/info/$p.prerm /var/lib/dpkg/info/$p.postrm \
+        /var/lib/dpkg/info/$p:amd64.prerm /var/lib/dpkg/info/$p:amd64.postrm; done; \
+    dpkg --purge --force-remove-essential --force-remove-protected --force-depends --no-triggers $remove
+
+FROM scratch
+COPY --from=strip / /
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    REDIS_VERSION=7.4.12
+WORKDIR /data
+VOLUME /data
+USER redis
+EXPOSE 6379
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["redis-server"]
