@@ -144,7 +144,7 @@ Build and run: `docker build -f Dockerfile.wolfi -t redis:7.4.12-wolfi-lowcve .`
 2. **Smaller and fresher base with a multi-stage source build (`Dockerfile.wolfi`).** Builds Redis 7.4.12 from the same upstream tarball (SHA-256 verified) with the official image's TLS build (`BUILD_TLS=yes`) and its protected-mode patch. The official image also passes jemalloc page sizes by hand (`--with-lg-page=12 --with-lg-hugepage=21`); I left that out because jemalloc detects the same values on an x86_64 build machine (on 64K-page arm64 hosts, add the flags back). Only `redis-server`, `redis-cli` and the `make install` symlinks go into the runtime image. Result: 4.
 3. **Upgrade packages with available fixes:** `apk upgrade --no-cache` in the runtime stage.
 
-Base images evaluated before choosing (unique CVEs of the bare base, same DB): `wolfi-base` 2, `chainguard/glibc-dynamic`, `distroless base-debian12/13`, `debian:trixie-slim`, `alpine:3.22/3.23` and `redis:7-alpine` (scans in `scans/bases/`). Alpine (musl) gave 8 in an earlier attempt. Wolfi keeps glibc, which matches the original's runtime, and scored lowest.
+Base images evaluated before choosing (unique CVEs of the bare base, same DB): `wolfi-base` 2, `chainguard/glibc-dynamic`, `distroless base-debian12/13`, `debian:trixie-slim`, `alpine:3.22/3.23` and `redis:7-alpine` (rerun with `../../scripts/scan_bases.sh <images>`; the raw scans are not in the repo). Alpine (musl) gave 8 in an earlier attempt. Wolfi keeps glibc, which matches the original's runtime, and scored lowest.
 
 ### Tools and settings
 
@@ -197,7 +197,7 @@ Container-level mitigations already in place: the server runs as uid 999 (not ro
 
 ## 6. Test plan and results
 
-**What "working correctly" means:** the new image must behave like the original for everything a Redis user relies on. That means the same version, it starts and serves commands, it persists data, it can be reached over the network by name, TLS works, it shuts down cleanly, and it runs unprivileged. `tests/redis_test.sh` checks all of these with exact expected values. It waits for readiness by polling `PING` (no fixed sleeps), uses a fresh container and volume per run, cleans up with `trap`, and runs **3 times per image**. Results go to `tests/<label>.tsv`. A check that passes on the original but fails on a candidate blocks that candidate.
+**What "working correctly" means:** the new image must behave like the original for everything a Redis user relies on. That means the same version, it starts and serves commands, it persists data, it can be reached over the network by name, TLS works, it shuts down cleanly, and it runs unprivileged. `tests/redis_test.sh` checks all of these with exact expected values. It waits for readiness by polling `PING` (no fixed sleeps), uses a fresh container and volume per run, cleans up with `trap`, and runs **3 times per image**. Results go to `tests/<label>.tsv`; the results of this run are in `results/original.tsv`, `results/purge.tsv` and `results/wolfi.tsv`. A check that passes on the original but fails on a candidate blocks that candidate.
 
 **38 checks per run, 3 runs per image.** Every cell below is runs passed / 3.
 
@@ -247,9 +247,9 @@ Container-level mitigations already in place: the server runs as uid 999 (not ro
 | 38 | tls_final_ping | server still answers after the failed handshakes | 3/3 | 3/3 | 3/3 |
 | | **Total** | | **114/114** | **114/114** | **114/114** |
 
-Run them: `bash steps/run-tests.sh`, or for one image `IMAGE=<img> LABEL=<name> RUNS=3 bash tests/redis_test.sh`.
+Run them per image with `IMAGE=<img> LABEL=<name> RUNS=3 bash tests/redis_test.sh`, then compare with `python3 ../../scripts/compare_tests.py tests/original.tsv tests/<name>.tsv` (side-by-side table of this run: `results/tests.md`).
 
-**Independent cross-check:** `tests/compare_test.sh`, a separate test script with 27 checks per image (data operations, expiry, SAVE, DBSIZE and the same TLS positive/negative/protocol tests), was also run unchanged with `ORIGINAL=redis:7-bookworm` and `SECURED=redis:7.4.12-wolfi-lowcve`. Result: **27/27 on each image, "ALL TESTS PASSED ON BOTH IMAGES!"** (`tests/compare_test_results.txt`, `tests/compare_test.log`). Every check in that script is also in `redis_test.sh` (rows 2, 5–18, 21–22, 28–38).
+**Independent cross-check:** `tests/compare_test.sh`, a separate test script with 27 checks per image (data operations, expiry, SAVE, DBSIZE and the same TLS positive/negative/protocol tests), was also run unchanged with `ORIGINAL=redis:7-bookworm` and `SECURED=redis:7.4.12-wolfi-lowcve`. Result: **27/27 on each image, "ALL TESTS PASSED ON BOTH IMAGES!"** (`results/compare_test_results.txt`). Every check in that script is also in `redis_test.sh` (rows 2, 5–18, 21–22, 28–38).
 
 ## 7. Challenges and lessons learned
 
@@ -262,18 +262,22 @@ Run them: `bash steps/run-tests.sh`, or for one image `IMAGE=<img> LABEL=<name> 
 - **Environment issues.** The tools ran in WSL with Docker installed as a snap. Snap confinement hides `/tmp` from the Docker daemon (the TLS test certificates had to move to `$HOME`). A wrong `~/snap` permission (`drw-r--r--`) broke the docker client after a snap refresh and was reset to 755.
 - **Purge image caveat:** `libgcc-s1` was removed. Redis doesn't link it, but glibc loads `libgcc_s` on demand for `pthread_cancel`, which Redis only uses while killing threads during crash reporting. The Wolfi image keeps `libgcc`, so it is not affected.
 
-## Appendix A: Files
+## Appendix A: Files in this example
 
 | Path | Content |
 |---|---|
 | `Dockerfile.wolfi`, `files/docker-entrypoint.sh` | final image |
 | `Dockerfile.purge` | approach 1 candidate |
-| `scans/baseline.json`, `scans/candidate-purge.json`, `scans/final.json` | raw grype output (same DB) |
-| `summaries/baseline.txt`, `candidate-*.txt`, `compare.txt`, `compare-purge.txt` | summaries / before-after |
-| `summaries/baseline.csv`, `summaries/final.csv` | one row per CVE × package |
-| `tests/redis_test.sh`, `tests/{original,purge,wolfi}.tsv` | test script and per-run results |
-| `tests/compare_test.sh`, `tests/compare_test_results.txt` | independent comparison test and its results |
-| `steps/*.sh`, `steps/*.py` | every command run, as scripts |
+| `tests/redis_test.sh` | the 38-check test suite |
+| `tests/compare_test.sh` | independent comparison test |
+| `results/baseline.txt`, `results/candidate-purge.txt`, `results/final.txt` | scan summaries |
+| `results/compare.txt`, `results/compare-purge.txt` | before/after comparisons |
+| `results/baseline-cves.csv` | baseline: one row per CVE × package |
+| `results/by-source.md`, `results/outcome.md` | CVEs by source package; what removed each CVE |
+| `results/original.tsv`, `results/purge.tsv`, `results/wolfi.tsv`, `results/tests.md` | test results per run, and side by side |
+| `results/compare_test_results.txt` | comparison-test results |
+
+Raw grype JSON is not included (large, and tied to one DB build); the commands in Appendix C regenerate it.
 
 ## Appendix B: CVE lists
 
@@ -410,22 +414,25 @@ New CVEs in final image not present in baseline: 0 []
 
 Totals: removed by A = 74, additionally removed by B = 35, remaining = 4
 
-## Appendix C: Commands run (condensed)
+## Appendix C: Commands to reproduce
+
+Run from `examples/redis`; `S=../../scripts` are the skill's scripts. (The original run used equivalent one-off helper scripts.)
 
 ```
-docker pull redis:7-bookworm                      # digest sha256:2e3eb114…172a90
-grype redis@sha256:2e3eb114… -o json > scans/baseline.json
-python3 summarize_scan.py scans/baseline.json > summaries/baseline.txt
-bash steps/05-deps.sh                             # ldd + dpkg -S: runtime needs libc6, libssl3, sh
-bash steps/06-scan-bases.sh                       # scan candidate base images
-docker build -f Dockerfile.purge -t redis:7.4.12-purge .
-bash steps/scan-only.sh redis:7.4.12-purge purge  # 39
-docker build -f Dockerfile.wolfi -t redis:7.4.12-wolfi .
-bash steps/scan-only.sh redis:7.4.12-wolfi wolfi  # 4
-bash steps/run-tests.sh                           # 3 images x 3 runs x 38 checks, all pass
-bash steps/run-compare.sh                        # independent compare_test.sh: 27/27 on both images
-docker tag redis:7.4.12-wolfi redis:7.4.12-wolfi-lowcve
-python3 summarize_scan.py --compare scans/baseline.json scans/final.json > summaries/compare.txt
+S=../../scripts
+bash $S/inspect_image.sh redis:7-bookworm          # runtime needs: libc6, libssl3, sh
+bash $S/scan.sh redis:7-bookworm baseline          # 113 unique CVEs; freezes the grype DB
+bash $S/scan_bases.sh cgr.dev/chainguard/wolfi-base alpine:3.22 debian:trixie-slim
+VERSION_CMD="redis-server --version" bash $S/build_scan.sh purge redis:7.4.12-purge          # 39
+VERSION_CMD="redis-server --version" bash $S/build_scan.sh wolfi redis:7.4.12-wolfi-lowcve   # 4
+for x in redis:7-bookworm,original redis:7.4.12-purge,purge redis:7.4.12-wolfi-lowcve,wolfi; do
+  IMAGE=${x%,*} LABEL=${x#*,} RUNS=3 bash tests/redis_test.sh
+done                                                # 114/114 on each image
+python3 $S/compare_tests.py tests/original.tsv tests/purge.tsv tests/wolfi.tsv
+python3 $S/summarize_scan.py --compare scans/baseline.json scans/wolfi.json --removed
+python3 $S/summarize_scan.py --outcome scans/baseline.json scans/purge.json scans/wolfi.json --md
 ```
+
+CVE counts depend on the grype DB build; a newer DB can give slightly different numbers.
 
 Sources for §5: [Debian tracker CVE-2025-49112](https://security-tracker.debian.org/tracker/CVE-2025-49112), [NVD CVE-2025-49112](https://nvd.nist.gov/vuln/detail/cve-2025-49112), [NVD CVE-2025-46686](https://nvd.nist.gov/vuln/detail/CVE-2025-46686), [Chainguard CVE-2025-46686](https://images.chainguard.dev/security/CVE-2025-46686), [Debian tracker CVE-2026-115819](https://security-tracker.debian.org/tracker/CVE-2026-115819), [oss-security 2026-11-11](https://www.openwall.com/lists/oss-security/2026/11/11/8), [Amazon Linux CVE-2026-115819](https://explore.alas.aws.amazon.com/CVE-2026-115819.html).
